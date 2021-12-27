@@ -196,8 +196,10 @@ void inflate_params(FILE *fin, FILE *fout, int32_t read_buf_size, int32_t write_
 
             err = PREFIX(inflate)(&d_stream, Z_FINISH);
             if (err == Z_STREAM_END) break;
-            CHECK_ERR(err, "inflate");
-        } while (err == Z_OK);
+            /* During a Z_FINISH inflate, Z_BUF_ERROR is non-fatal and
+               decompression can continue if more output is provided. */
+            if (err != Z_BUF_ERROR) CHECK_ERR(err, "inflate");
+        } while (err == Z_OK || err == Z_BUF_ERROR);
     }
 
     /* Output remaining data in write buffer */
