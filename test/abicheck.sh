@@ -103,7 +103,9 @@ then
   exit 0
 fi
 
-ABIFILE="test/abi/zlib$suffix-$ABI_GIT_COMMIT-$CHOST$M32.abi"
+ABIXML_VER=$(abidw --abixml-version | awk '{print $2}')
+
+ABIFILE="test/abi/$ABIXML_VER/zlib$suffix-$ABI_GIT_COMMIT-$CHOST$M32.abi"
 if ! $refresh && $refresh_if && ! test -f "$ABIFILE"
 then
   refresh=true
@@ -112,6 +114,7 @@ abidw --version
 
 if $refresh
 then
+  test -d $(dirname $ABIFILE) || mkdir $(dirname $ABIFILE)
   # Check out reference source
   rm -rf btmp1
   mkdir -p btmp1/src.d
